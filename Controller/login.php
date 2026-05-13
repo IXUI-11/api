@@ -13,14 +13,22 @@ Cherche dans la base si un utilisateur correspond
 Récupère l’utilisateur s’il existe
 */
 
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json");
+
 $donnes = json_decode(file_get_contents("php://input"), true);
 $email = $donnes['email'] ;
 $mot_de_passe = $donnes['mot_de_passe'] ;
 // TODO : faire le hash du mot de passe pour le comparer avec celui de la base de données et le mdp avec php et non avec my sql
-$req = Bdd::getConnection()->prepare("SELECT * FROM utilisateur  WHERE email = :email AND mot_de_passe = :mot_de_passe");
+$req = Bdd::getConnection()->prepare("SELECT * FROM utilisateur WHERE email = :email AND mot_de_passe = :mot_de_passe");
 $req->execute([
-    'email' => $email,
-    'mot_de_passe' => $mot_de_passe
+    ':email' => $email,
+    ':mot_de_passe' => $mot_de_passe
 ]);
-$utlisateur = $req->fetch(mode: PDO::FETCH_ASSOC);
-?> 
+$utilisateur = $req->fetch(PDO::FETCH_ASSOC);
+
+if ($utilisateur) {
+    echo json_encode(["success" => true, "role" => $utilisateur['id_role']]);
+} else {
+    echo json_encode(["success" => false, "message" => "Email ou mot de passe incorrect"]);
+}
