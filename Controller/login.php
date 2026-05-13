@@ -1,0 +1,26 @@
+<?php
+require_once "../Config/bdd.php";
+
+//  php:// input pour récupérer excatement les donné envoyer par le client (le front) et json_decode pour les convertir en tableau associatif
+
+
+/*
+ code fait ça :
+
+Reçoit un JSON du front
+Lit email + mot de passe
+Cherche dans la base si un utilisateur correspond
+Récupère l’utilisateur s’il existe
+*/
+
+$donnes = json_decode(file_get_contents("php://input"), true);
+$email = $donnes['email'] ;
+$mot_de_passe = $donnes['mot_de_passe'] ;
+// TODO : faire le hash du mot de passe pour le comparer avec celui de la base de données et le mdp avec php et non avec my sql
+$req = Bdd::getConnection()->prepare("SELECT * FROM utilisateur  WHERE email = :email AND mot_de_passe = :mot_de_passe");
+$req->execute([
+    'email' => $email,
+    'mot_de_passe' => $mot_de_passe
+]);
+$utlisateur = $req->fetch(mode: PDO::FETCH_ASSOC);
+?> 
