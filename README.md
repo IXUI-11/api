@@ -1,1 +1,3 @@
-projet react api final
+- **Cmétier** : contient les classes métier (entités et logique métier de l'application).
+- **Cservice** : contient les classes de service responsables des traitements et des règles de gestion.
+- **Controllers** : gèrent les requêtes HTTP provenant du client React.
