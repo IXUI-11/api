@@ -21,15 +21,11 @@ header("Access-Control-Allow-Methods: POST");
 $donnes = json_decode(file_get_contents("php://input"), true);
 $email = $donnes['email'] ;
 $mot_de_passe = $donnes['mot_de_passe'] ;
-// TODO : faire le hash du mot de passe pour le comparer avec celui de la base de données et le mdp avec php et non avec my sql
-$req = Bdd::getConnection()->prepare("SELECT * FROM utilisateur WHERE email = :email AND mot_de_passe = :mot_de_passe");
-$req->execute([
-    ':email' => $email,
-    ':mot_de_passe' => $mot_de_passe
-]);
+$req = Bdd::getConnection()->prepare("SELECT * FROM utilisateur WHERE email = :email");
+$req->execute([':email' => $email]);
 $utilisateur = $req->fetch(PDO::FETCH_ASSOC);
 
-if ($utilisateur) {
+if ($utilisateur && password_verify($mot_de_passe, $utilisateur['mot_de_passe'])) {
     echo json_encode([
         "success" => true,
         "role" => $utilisateur['id_role'],
