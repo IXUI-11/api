@@ -62,7 +62,7 @@ public function getBenevoleParlId(int $id){
 
 public function ajouterBenevole(string $nom , string $prenom , string $email , string $mot_de_passe , string $adresse , string $code_postal , string $date_naissance) {      
     try{
-        $req = $this->pdo->prepare("INSERT INTO benevole(nom , prenom , email, mot_de_passe , adresse , code_postal , date_naissance ,id_role) VALUES (:nom , :prenom , :email, :mot_de_passe , :adresse , :code_postal , :date_naissance ,1)");
+        $req = $this->pdo->prepare("INSERT INTO benevole(nom , prenom , email, mot_de_passe , adresse , code_postal , date_naissance ,id_role) VALUES (:nom , :prenom , :email, :mot_de_passe , :adresse , :code_postal , :date_naissance ,2)");
         $req->execute([
             ':nom' => $nom,
             ':prenom' => $prenom,
@@ -78,7 +78,7 @@ public function ajouterBenevole(string $nom , string $prenom , string $email , s
 
         // insérer dans utlisateur
 
-        $req2 = $this->pdo->prepare("INSERT INTO utilisateur (email , mot_de_passe, id_benevole,id_role)  VALUES (:email , :mot_de_passe, :id_benevole,1)");
+        $req2 = $this->pdo->prepare("INSERT INTO utilisateur (email , mot_de_passe, id_benevole,id_role)  VALUES (:email , :mot_de_passe, :id_benevole,2)");
         $req2->execute([
             ':email' => $email,
             ':mot_de_passe' => $mot_de_passe,
