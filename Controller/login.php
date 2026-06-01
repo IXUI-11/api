@@ -15,6 +15,8 @@ Récupère l’utilisateur s’il existe
 
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: POST");
 
 $donnes = json_decode(file_get_contents("php://input"), true);
 $email = $donnes['email'] ;
@@ -28,7 +30,14 @@ $req->execute([
 $utilisateur = $req->fetch(PDO::FETCH_ASSOC);
 
 if ($utilisateur) {
-    echo json_encode(["success" => true, "role" => $utilisateur['id_role']]);
+    echo json_encode([
+        "success" => true,
+        "role" => $utilisateur['id_role'],
+        "id_benevole" => $utilisateur['id_benevole']
+    ]);
 } else {
-    echo json_encode(["success" => false, "message" => "Email ou mot de passe incorrect"]);
+    echo json_encode([
+        "success" => false,
+        "message" => "Email ou mot de passe incorrect"
+    ]);
 }
