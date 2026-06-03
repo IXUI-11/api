@@ -1,6 +1,6 @@
 <?php
 require_once "../Config/bdd.php";
-require_once "../Cmetiers/Participation.php";
+require_once "../Cmetiers/participation.php";
 
 class ParticipationService {
     

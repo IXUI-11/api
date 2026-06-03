@@ -13,10 +13,11 @@ Cherche dans la base si un utilisateur correspond
 Récupère l’utilisateur s’il existe
 */
 
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: POST");
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
 $donnes = json_decode(file_get_contents("php://input"), true);
 $email = $donnes['email'] ;

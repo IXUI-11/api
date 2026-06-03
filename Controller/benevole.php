@@ -2,12 +2,13 @@
 require_once "../Config/bdd.php";
 require_once "../Cmetiers/beneovle.php";
 require_once "../Cservices/benevoles.php";
-require_once "../Cmetiers/Participation.php";
+require_once "../Cmetiers/participation.php";
 
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: GET, POST");
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
 $pdo = Bdd::getConnection();
 $service = new BenevoleService($pdo);
