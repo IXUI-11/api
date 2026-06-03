@@ -2,8 +2,8 @@
 
 class Bdd{
     private  static $hote = "localhost";
-    private  static $utilisateur = "root";
-    private  static $mot_de_passe = "";
+    private  static $utilisateur = "benovaide";
+    private  static $mot_de_passe = "Soso@123";
     private  static $base_de_donnees = "benovaide";
 
     public static function getConnection(){

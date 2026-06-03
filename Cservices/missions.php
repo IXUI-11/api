@@ -12,8 +12,7 @@ class MissionService
         $this->pdo = $pdo;
     }
 
-
-    // récupérer toutes les missions
+    // Récupération de toutes les missions en base de données
     public function getToutLesMissions()
     {
         try {
@@ -22,6 +21,7 @@ class MissionService
 
             $missionsList = [];
 
+            // Conversion de chaque ligne en objet Mission
             foreach ($missions as $tableau) {
                 $missionsList[] = new Mission(
                     $tableau['id'],
@@ -36,12 +36,11 @@ class MissionService
             return $missionsList;
         } catch (Exception $e) {
             http_response_code(500);
-
             return ["Erreur de la base de données" => $e->getMessage()];
         }
     }
 
-    // récupérer les 5 dernières missions
+    // Récupération des 5 missions les plus récentes (triées par date décroissante)
     public function getMissionRecent()
     {
         try {
@@ -50,6 +49,7 @@ class MissionService
 
             $missionsList = [];
 
+            // Conversion de chaque ligne en objet Mission
             foreach ($missions as $tableau) {
                 $missionsList[] = new Mission(
                     $tableau['id'],
@@ -64,16 +64,16 @@ class MissionService
             return $missionsList;
         } catch (Exception $e) {
             http_response_code(500);
-
             return ["Erreur de la base de données" => $e->getMessage()];
         }
     }
 
-    // ajouter une mission
+    // Ajout d'une nouvelle mission (actif = 1 par défaut à la création)
     public function ajouterMission(string $titre, string $lieu, string $description, string $date_mission): array
     {
         try {
-            $req = $this->pdo->prepare("INSERT INTO mission (titre , lieu , description , date_mission , actif)  VALUES (:titre , :lieu , :description , :date_mission , 1)");
+            // Requête préparée pour éviter les injections SQL
+            $req = $this->pdo->prepare("INSERT INTO mission (titre, lieu, description, date_mission, actif) VALUES (:titre, :lieu, :description, :date_mission, 1)");
             $req->execute([
                 ':titre' => $titre,
                 ':lieu' => $lieu,
@@ -88,17 +88,18 @@ class MissionService
         }
     }
 
-    // supprimer une mission
+    // Suppression d'une mission et de toutes ses participations liées
     public function supprimerMission(int $id)
     {
-
         try {
-            // Supprimer d'abord les participations liées à la mission
+            // Suppression des participations liées en premier (contrainte de clé étrangère)
             $req = $this->pdo->prepare("DELETE FROM participation WHERE id_mission = :id");
             $req->execute([':id' => $id]);
-            // supprimer Mission
+
+            // Suppression de la mission elle-même
             $req = $this->pdo->prepare("DELETE FROM mission WHERE id = :id");
             $req->execute([':id' => $id]);
+
             return ["success" => true, "message" => "Mission supprimée avec succès"];
         } catch (Exception $e) {
             http_response_code(500);
@@ -106,7 +107,7 @@ class MissionService
         }
     }
 
-    // modifier une mission
+    // Modification des informations d'une mission existante
     public function modifierMission(int $id, string $titre, string $lieu, string $description, string $date_mission)
     {
         try {
@@ -118,6 +119,7 @@ class MissionService
                 ':description' => $description,
                 ':date_mission' => $date_mission
             ]);
+
             return ["success" => true, "message" => "Mission modifiée avec succès"];
         } catch (Exception $e) {
             http_response_code(500);
@@ -125,21 +127,25 @@ class MissionService
         }
     }
 
-
-    // récupérer les missions passées d'un utlisateur 
+    // Récupération des missions passées d'un bénévole (date antérieure à aujourd'hui)
     public function getMissionsPasseesParBenevole(int $id_benevole)
     {
         try {
+            // Jointure entre mission et participation pour filtrer par bénévole
+            // DISTINCT pour éviter les doublons si le bénévole a plusieurs participations à la même mission
             $req = $this->pdo->prepare("
-        SELECT DISTINCT m.* FROM mission m
-JOIN participation p ON m.id = p.id_mission
-WHERE p.id_benevole = :id_benevole
-AND m.date_mission < CURDATE()
-ORDER BY m.date_mission DESC
-    ");
+                SELECT DISTINCT m.* FROM mission m
+                JOIN participation p ON m.id = p.id_mission
+                WHERE p.id_benevole = :id_benevole
+                AND m.date_mission < CURDATE()
+                ORDER BY m.date_mission DESC
+            ");
             $req->execute([':id_benevole' => $id_benevole]);
             $rows = $req->fetchAll(PDO::FETCH_ASSOC);
+
             $missionsList = [];
+
+            // Conversion de chaque ligne en objet Mission
             foreach ($rows as $tableau) {
                 $missionsList[] = new Mission(
                     $tableau['id'],
@@ -150,6 +156,7 @@ ORDER BY m.date_mission DESC
                     $tableau['actif']
                 );
             }
+
             return $missionsList;
         } catch (Exception $e) {
             http_response_code(500);
@@ -157,7 +164,7 @@ ORDER BY m.date_mission DESC
         }
     }
 
-    // changer le statut d'une mission (actif ou inactif)
+    // Changement du statut actif/inactif d'une mission (1 = actif, 0 = inactif)
     public function changerStatutMission(int $id, int $actif)
     {
         $req = $this->pdo->prepare("UPDATE mission SET actif = :actif WHERE id = :id");
@@ -165,6 +172,7 @@ ORDER BY m.date_mission DESC
             ':id' => $id,
             ':actif' => $actif
         ]);
+
         return ["success" => true, "message" => "Statut de la mission mis à jour"];
     }
 }
